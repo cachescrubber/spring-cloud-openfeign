@@ -58,6 +58,15 @@ public class FeignClientFactory extends NamedContextFactory<FeignClientSpecifica
 		}
 	}
 
+	@Override
+	public void registerBeans(String name, GenericApplicationContext context) {
+		FeignClientSpecification feignClientSpecification = getConfigurations().get(name);
+		if (feignClientSpecification != null) {
+			context.registerBean(FeignClientId.class, feignClientSpecification.getName());
+		}
+		super.registerBeans(name, context);
+	}
+
 	@Nullable
 	public <T> Map<String, T> getInstancesWithoutAncestors(String name, Class<T> type) {
 		return getContext(name).getBeansOfType(type);
@@ -75,6 +84,20 @@ public class FeignClientFactory extends NamedContextFactory<FeignClientSpecifica
 						(ApplicationContextInitializer<GenericApplicationContext>) applicationContextInitializers
 								.get(contextId)));
 		return new FeignClientFactory(convertedInitializers);
+	}
+
+	public static class FeignClientId {
+
+		private final String name;
+
+		public FeignClientId(String name) {
+			this.name = name;
+		}
+
+		public String getName() {
+			return name;
+		}
+
 	}
 
 }
